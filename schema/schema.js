@@ -146,10 +146,27 @@ const Mutation = new GraphQLObjectType({
                         professorId: args.professorId
                     }, {
                         new: true
-                    }
-                )
+                    })
             }
         },
+        //Elimiar coursos por Id
+        deleteCourse: {
+            type: CourseType,
+            args: {
+                id: { type: GraphQLID }
+            },
+            resolve(parent, args) {
+                return Course.findByIdAndDelete(args.id);
+            }
+        },
+        //Eliminar todos los Courses
+        deleteAllCourses: {
+            type: CourseType,
+            resolve(parent, args) {
+                return Course.deleteMany({});
+            }
+        },
+        //Agregar un nuevo profesor
         addProfessor: {
             type: ProfessorType,
             args: {
@@ -160,6 +177,45 @@ const Mutation = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 return Professor(args).save();
+            }
+        },
+        //Actualizar Profesor existente por id
+        updateProfessor: {
+            type: ProfessorType,
+            args: {
+                id: { type: GraphQLID },
+                name: { type: GraphQLString },
+                age: { type: GraphQLInt },
+                active: { type: GraphQLBoolean },
+                date: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+                return Professor.findByIdAndUpdate(
+                    args.id, {
+                        name: args.name,
+                        age: args.age,
+                        active: args.active,
+                        date: args.date
+                    }, {
+                        new: true
+                    })
+            }
+        },
+        //Eliminar Profesor por Id
+        deleteProfessor: {
+            type: ProfessorType,
+            args: {
+                id: { type: GraphQLID }
+            },
+            resolve(parent, args) {
+                return Professor.findByIdAndDelete(args.id);
+            }
+        },
+        //Eliminar todos los profesores
+        deleteAllProfessor: {
+            type: ProfessorType,
+            resolve(parent, args) {
+                return Professor.deleteMany({});
             }
         }
     }
