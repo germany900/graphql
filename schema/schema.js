@@ -2,6 +2,8 @@ const graphql = require('graphql');
 const Course = require('../models/course');
 const Professor = require('../models/professor');
 const User = require('../models/user');
+const bcrypt = require('bcrypt');
+const auth = require('../utlis/auth');
 
 const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLBoolean, GraphQLSchema, GraphQLList, GraphQLID } = graphql;
 
@@ -233,14 +235,30 @@ const Mutation = new GraphQLObjectType({
             async resolve(parent, args) {
                 let user = await User.findOne({ email: args.email })
                 if (user) return { error: 'Usuario existente en la base de datos' }
+                const salt = await bcrypt.genSalt(12);
+                const hashPassword = await bcrypt.hash(args.password, salt);
                 user = new User({
                     name: args.name,
                     email: args.email,
                     date: args.date,
-                    password: args.password
+                    password: hashPassword
                 });
                 user.save();
                 return { message: 'User registrado correctamente' }
+            }
+        },
+        login: {
+            type: MessageType,
+            args: {
+                email: { type: GraphQLString },
+                password: { type: GraphQLString }
+            },
+            async resolve(parent, args) {
+                const result = await auth.login(args.email, args.password, '1234');
+                return {
+                    message: result.message,
+                    error: result.error
+                }
             }
         }
     }
