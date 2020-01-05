@@ -1,16 +1,11 @@
 const graphql = require('graphql');
 const Course = require('../models/course');
 const Professor = require('../models/professor');
+const User = require('../models/user');
 
 const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLBoolean, GraphQLSchema, GraphQLList, GraphQLID } = graphql;
 
-var users = [
-    { id: '1', name: "germany900", email: "ninganegro@hotmail.com", password: "german1234", date: "2025" },
-    { id: '2', name: "hello", email: "hello123@hotmail.com", password: "hello123", date: "2025" },
-    { id: '3', name: "ninja", email: "ninjanegro@hotmail.com", password: "hello12", date: "2025" },
-    { id: '5', name: "hola", email: "hola123@hotmail.com", password: "hola123", date: "2025" }
-]
-
+//Object type para Cursos
 const CourseType = new GraphQLObjectType({
     name: 'Course',
     fields: () => ({
@@ -26,7 +21,7 @@ const CourseType = new GraphQLObjectType({
         }
     })
 });
-
+//Object type para Profesor
 const ProfessorType = new GraphQLObjectType({
     name: 'Professor',
     fields: () => ({
@@ -44,7 +39,7 @@ const ProfessorType = new GraphQLObjectType({
         }
     })
 });
-
+//Object type para usuario
 const UserType = new GraphQLObjectType({
     name: 'User',
     fields: () => ({
@@ -53,6 +48,15 @@ const UserType = new GraphQLObjectType({
         email: { type: GraphQLString },
         password: { type: GraphQLString },
         date: { type: GraphQLString }
+    })
+});
+//Mensaje para usuarios
+const MessageType = new GraphQLObjectType({
+    name: 'Message',
+    fields: () => ({
+        message: { type: GraphQLString },
+        token: { type: GraphQLString },
+        error: { type: GraphQLString }
     })
 });
 
@@ -216,6 +220,27 @@ const Mutation = new GraphQLObjectType({
             type: ProfessorType,
             resolve(parent, args) {
                 return Professor.deleteMany({});
+            }
+        },
+        addUser: {
+            type: MessageType,
+            args: {
+                name: { type: GraphQLString },
+                email: { type: GraphQLString },
+                password: { type: GraphQLString },
+                date: { type: GraphQLString }
+            },
+            async resolve(parent, args) {
+                let user = await User.findOne({ email: args.email })
+                if (user) return { error: 'Usuario existente en la base de datos' }
+                user = new User({
+                    name: args.name,
+                    email: args.email,
+                    date: args.date,
+                    password: args.password
+                });
+                user.save();
+                return { message: 'User registrado correctamente' }
             }
         }
     }
