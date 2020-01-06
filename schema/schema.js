@@ -71,7 +71,7 @@ const RootQuery = new GraphQLObjectType({
             args: {
                 id: { type: GraphQLID }
             },
-            resolve(parent, args) {
+            resolve(parent, args, contetx) {
                 return Course.findById(args.id);
             }
         },
@@ -257,7 +257,8 @@ const Mutation = new GraphQLObjectType({
                 const result = await auth.login(args.email, args.password, '1234');
                 return {
                     message: result.message,
-                    error: result.error
+                    error: result.error,
+                    token: result.token
                 }
             }
         }
